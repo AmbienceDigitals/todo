@@ -20,13 +20,14 @@ export async function createTodo(
 
   const itemId = uuid.v4()
   const userId = getUserId(jwtToken)
-  // const bucketName =  process.env.ATTACHMENT_S3_BUCKET
+  const bucketName =  process.env.ATTACHMENT_S3_BUCKET
 
   return  todoAccess.createTodo({
     userId: userId,
     todoId: itemId,
     createdAt: new Date().toISOString(),
     done: false,
+    attachmentUrl: `https://${bucketName}.s3.amazonaws.com/${itemId}`,
     ...createTodoRequest,
   })
 }
@@ -34,10 +35,9 @@ export async function createTodo(
 // create todo item using todo access class
 export async function updateTodo(
   updateTodoRequest: UpdateTodoRequest,
-  jwtToken: string,
-  itemId: string
+  itemId: string,
+  jwtToken: string
 ): Promise<TodoUpdate> {
-
   const userId = getUserId(jwtToken)
   return  todoAccess.updateTodo(
     updateTodoRequest, itemId, userId

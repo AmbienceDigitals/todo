@@ -29,8 +29,8 @@ const serverlessConfiguration: AWS = {
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
-      TODOS_TABLE: 'serverlessTodo-${self:custom.stage}',
-      // TODOS_CREATED_AT_INDEX: 'CreatedAtIndex',
+      TODOS_TABLE: 'serverlesstodo-${self:custom.stage}',
+      TODOS_CREATED_AT_INDEX: 'CreatedAtIndex',
       ATTACHMENT_S3_BUCKET: 'serverlesstodo-${self:custom.stage}',
       SIGNED_URL_EXPIRATION: '300'
     },
@@ -124,6 +124,10 @@ const serverlessConfiguration: AWS = {
             AttributeName: "todoId",
             AttributeType: "S",
           },
+          {
+            AttributeName: "createdAt",
+            AttributeType: "S",
+          }
         ],
           KeySchema: [
           {
@@ -137,6 +141,24 @@ const serverlessConfiguration: AWS = {
         ],
           BillingMode: 'PAY_PER_REQUEST',
           TableName: '${self:provider.environment.TODOS_TABLE}',
+          LocalSecondaryIndexes: [
+            {
+              IndexName: "${self:provider.environment.TODOS_CREATED_AT_INDEX}",
+              KeySchema: [
+                {
+                  AttributeName: "userId",
+                  KeyType: "HASH"
+                },
+                {
+                  AttributeName: "createdAt",
+                  "KeyType": "RANGE"
+                }
+              ],
+              Projection: {
+                ProjectionType: "ALL"
+              }
+            }
+          ]
         } 
       },
       
@@ -180,7 +202,10 @@ const serverlessConfiguration: AWS = {
                 Sid: 'PublicReadForGetBucketObjects',
                 Effect: 'Allow',
                 Principal: '*',
-                Action: 's3:GetObject',
+                Action: [
+                  's3:GetObject',
+                  's3:PutObject',
+                ],
                 Resource: 'arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*'
               }
             ]

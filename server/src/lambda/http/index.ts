@@ -20,7 +20,10 @@ export const GetTodos = {
             Action: [
                 "dynamodb:Query"
             ],
-            Resource: 'arn:aws:dynamodb:${self:custom.region}:*:table/${self:provider.environment.TODOS_TABLE}'
+            Resource: [
+                'arn:aws:dynamodb:${self:custom.region}:*:table/${self:provider.environment.TODOS_TABLE}',
+                'arn:aws:dynamodb:${self:custom.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}',
+            ]
         },
         {
             Effect: 'Allow',
@@ -61,7 +64,10 @@ export const CreateTodo = {
             Action: [
                 "dynamodb:PutItem"
             ],
-            Resource: 'arn:aws:dynamodb:${self:custom.region}:*:table/${self:provider.environment.TODOS_TABLE}'
+            Resource: [
+                'arn:aws:dynamodb:${self:custom.region}:*:table/${self:provider.environment.TODOS_TABLE}',
+                'arn:aws:dynamodb:${self:custom.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}',
+            ]
         },
         {
             Effect: 'Allow',
@@ -94,7 +100,10 @@ export const DeleteTodo = {
             Action: [
                 "dynamodb:DeleteItem"
             ],
-            Resource: 'arn:aws:dynamodb:${self:custom.region}:*:table/${self:provider.environment.TODOS_TABLE}'
+            Resource: [
+                'arn:aws:dynamodb:${self:custom.region}:*:table/${self:provider.environment.TODOS_TABLE}',
+                'arn:aws:dynamodb:${self:custom.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}',
+            ]
         },
         {
             Effect: 'Allow',
@@ -116,7 +125,6 @@ export const UpdateTodo = {
             method: 'patch',
             path: 'todos/{todoId}', 
             cors: true,
-            authorizer: 'Auth',
             reqValidatorName: 'RequestBodyValidator',
             documentation: {
                 summary: 'update a todo item ',
@@ -135,7 +143,10 @@ export const UpdateTodo = {
             Action: [
                 "dynamodb:UpdateItem"
             ],
-            Resource: 'arn:aws:dynamodb:${self:custom.region}:*:table/${self:provider.environment.TODOS_TABLE}'
+            Resource: [
+                'arn:aws:dynamodb:${self:custom.region}:*:table/${self:provider.environment.TODOS_TABLE}',
+                'arn:aws:dynamodb:${self:custom.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}',
+            ]
         },
         {
             Effect: 'Allow',
@@ -156,8 +167,7 @@ export const GenerateUploadUrl = {
         http: {
             method: 'post',
             path: 'todos/{todoId}/attachment',
-            cors: true,
-            authorizer: 'Auth',                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+            cors: true,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
         },
         },
     ],
@@ -167,10 +177,15 @@ export const GenerateUploadUrl = {
             Effect: 'Allow',
             Action: [
                 "s3: *",
+            ],
+            Resource: 'arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*'
+        },
+        {
+            Effect: 'Allow',
+            Action: [
                 "xray: PutTraceSegments"
             ],
-            Resource: 'arn:aws:dynamodb:${self:custom.region}:*:table/${self:provider.environment.ATTACHMENT_S3_BUCKET}'
+            Resource: '*'
         },
-
     ]
 };
