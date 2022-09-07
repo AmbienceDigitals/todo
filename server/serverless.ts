@@ -92,7 +92,7 @@ const serverlessConfiguration: AWS = {
             Ref:'ApiGatewayRestApi',
           },
           ValidateRequestBody: true,
-          ValidateRequestParameters: false,
+          ValidateRequestParameters: true,
         }
       },
 
